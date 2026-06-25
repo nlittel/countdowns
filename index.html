@@ -74,7 +74,6 @@
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
     }
-
     .add-btn:active { transform: scale(0.90); background: var(--accent-dark); }
     .add-btn svg { width: 22px; height: 22px; stroke: #fff; stroke-width: 2.5; fill: none; stroke-linecap: round; }
 
@@ -88,47 +87,38 @@
       gap: 12px;
     }
 
-    /* Cards */
     .card {
       background: var(--card);
       border: 0.5px solid var(--card-border);
       border-radius: 20px;
       padding: 16px 18px;
-      transition: opacity 0.3s, transform 0.2s, box-shadow 0.2s;
       position: relative;
-      touch-action: none;
+      transition: border-color 0.15s, opacity 0.15s;
     }
 
     .card.past { opacity: 0.5; }
-    .card.dragging {
-      opacity: 0.92;
-      transform: scale(1.03);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-      z-index: 10;
-      border-color: var(--accent);
-    }
-    .card.drag-over {
-      border-color: rgba(245,166,35,0.5);
+    .card.drag-placeholder {
+      opacity: 0.3;
+      border: 1.5px dashed var(--accent);
     }
 
     .card-header {
       display: flex;
-      justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 12px;
+      gap: 0;
     }
 
-    /* Drag handle */
     .drag-handle {
       display: flex;
       align-items: center;
-      padding: 2px 10px 2px 0;
+      padding: 2px 12px 2px 0;
       cursor: grab;
       color: var(--text-dim);
       flex-shrink: 0;
+      touch-action: none;
       -webkit-tap-highlight-color: transparent;
     }
-    .drag-handle:active { cursor: grabbing; }
     .drag-handle svg { width: 16px; height: 16px; fill: currentColor; }
 
     .card-meta { flex: 1; min-width: 0; }
@@ -151,7 +141,6 @@
     .card-actions {
       display: flex;
       align-items: center;
-      gap: 2px;
       flex-shrink: 0;
       margin-left: 8px;
     }
@@ -161,7 +150,7 @@
       border: none;
       cursor: pointer;
       color: var(--text-dim);
-      padding: 4px 6px;
+      padding: 4px 5px;
       line-height: 1;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.15s;
@@ -170,7 +159,6 @@
     .card-btn.del:active  { color: rgba(255,80,80,0.9); }
     .card-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Countdown digits */
     .countdown {
       display: flex;
       gap: 4px;
@@ -209,10 +197,7 @@
       line-height: 1;
     }
 
-    .past-label {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
+    .past-label { font-size: 13px; color: var(--text-muted); }
 
     .progress-bar {
       height: 2px;
@@ -228,7 +213,6 @@
       background: var(--accent);
     }
 
-    /* Empty state */
     .empty {
       text-align: center;
       padding: 60px 20px;
@@ -236,13 +220,23 @@
       font-size: 15px;
       line-height: 1.7;
     }
+    .empty-icon { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.3; }
 
-    .empty-icon {
-      width: 48px;
-      height: 48px;
-      margin: 0 auto 16px;
-      opacity: 0.3;
+    /* Floating drag ghost */
+    #dragGhost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 20px;
+      background: #1e3347;
+      border: 1.5px solid var(--accent);
+      padding: 16px 18px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+      opacity: 0.95;
+      display: none;
     }
+    #dragGhost .ghost-label { font-size: 16px; font-weight: 600; color: var(--text); }
+    #dragGhost .ghost-date  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
     /* Modal */
     .modal-overlay {
@@ -256,7 +250,6 @@
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
     }
-
     .modal-overlay.hidden { display: none; }
 
     .modal {
@@ -272,15 +265,9 @@
       to   { transform: translateY(0); }
     }
 
-    .modal-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 18px;
-    }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 18px; }
 
     .field { margin-bottom: 14px; }
-
     .field label {
       display: block;
       font-size: 11px;
@@ -290,7 +277,6 @@
       color: var(--text-muted);
       margin-bottom: 7px;
     }
-
     .field input {
       width: 100%;
       background: var(--input-bg);
@@ -306,15 +292,10 @@
       color-scheme: dark;
       user-select: text;
     }
-
     .field input:focus { border-color: var(--accent); }
     .field input::placeholder { color: var(--text-dim); }
 
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
     .btn-cancel {
       flex: 1;
@@ -344,7 +325,6 @@
       -webkit-tap-highlight-color: transparent;
       transition: background 0.12s;
     }
-
     .btn-save:active { background: var(--accent-dark); }
   </style>
 </head>
@@ -358,6 +338,12 @@
   </div>
 
   <div class="list" id="list"></div>
+
+  <!-- Floating ghost for touch drag -->
+  <div id="dragGhost">
+    <div class="ghost-label" id="ghostLabel"></div>
+    <div class="ghost-date"  id="ghostDate"></div>
+  </div>
 
   <div class="modal-overlay hidden" id="modalOverlay" onclick="overlayClick(event)">
     <div class="modal">
@@ -410,7 +396,7 @@
     let nextId = events.reduce((m, e) => Math.max(m, e.id), 0) + 1;
     let editingId = null;
 
-    function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2, '0'); }
+    function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2,'0'); }
 
     function diffParts(ms) {
       if (ms <= 0) return null;
@@ -425,8 +411,8 @@
 
     function fmtDate(ts) {
       return new Date(ts).toLocaleString('en-AU', {
-        weekday: 'short', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit'
+        weekday:'short', month:'short', day:'numeric',
+        hour:'2-digit', minute:'2-digit'
       });
     }
 
@@ -434,9 +420,7 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Drag-to-reorder state
-    let dragId = null;
-    let dragOverId = null;
+    // ── Render ────────────────────────────────────────────────────────────────
 
     function cardHtml(ev, now) {
       const left = ev.dt - now;
@@ -445,129 +429,106 @@
       const pct = total > 0 ? Math.max(0, Math.min(100, (left / total) * 100)) : 0;
       const past = !parts;
 
-      return `
-        <div class="card${past ? ' past' : ''}" id="card-${ev.id}"
-          data-id="${ev.id}"
-          draggable="true"
-          ondragstart="onDragStart(event,${ev.id})"
-          ondragover="onDragOver(event,${ev.id})"
-          ondragleave="onDragLeave(event,${ev.id})"
-          ondrop="onDrop(event,${ev.id})"
-          ondragend="onDragEnd(event)">
-          <div class="card-header">
-            <div class="drag-handle" title="Drag to reorder"
-              ontouchstart="onTouchStart(event,${ev.id})"
-              ontouchmove="onTouchMove(event)"
-              ontouchend="onTouchEnd(event)">
-              <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="3" width="12" height="2" rx="1"/>
-                <rect x="2" y="7" width="12" height="2" rx="1"/>
-                <rect x="2" y="11" width="12" height="2" rx="1"/>
-              </svg>
-            </div>
-            <div class="card-meta">
-              <div class="card-label">${escHtml(ev.label)}</div>
-              <div class="card-date">${fmtDate(ev.dt)}</div>
-            </div>
-            <div class="card-actions">
-              <button class="card-btn edit" onclick="openModal(${ev.id})" aria-label="Edit">
-                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              </button>
-              <button class="card-btn del" onclick="removeEvent(${ev.id})" aria-label="Delete">
-                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-              </button>
-            </div>
+      return `<div class="card${past?' past':''}" id="card-${ev.id}" data-id="${ev.id}">
+        <div class="card-header">
+          <div class="drag-handle" data-drag="${ev.id}" aria-label="Drag to reorder">
+            <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1"/><rect x="2" y="11" width="12" height="2" rx="1"/></svg>
           </div>
-          ${past
-            ? `<div class="past-label">This event has passed</div>`
-            : `<div class="countdown">
-                <div class="cd-block"><span class="cd-num" id="d-${ev.id}">${parts.d}</span><span class="cd-lbl">days</span></div>
-                <span class="cd-sep">:</span>
-                <div class="cd-block"><span class="cd-num" id="h-${ev.id}">${parts.h}</span><span class="cd-lbl">hrs</span></div>
-                <span class="cd-sep">:</span>
-                <div class="cd-block"><span class="cd-num" id="m-${ev.id}">${parts.m}</span><span class="cd-lbl">min</span></div>
-                <span class="cd-sep">:</span>
-                <div class="cd-block"><span class="cd-num" id="s-${ev.id}">${parts.s}</span><span class="cd-lbl">sec</span></div>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" id="p-${ev.id}" style="width:${pct.toFixed(2)}%"></div></div>`
-          }
-        </div>`;
+          <div class="card-meta">
+            <div class="card-label">${escHtml(ev.label)}</div>
+            <div class="card-date">${fmtDate(ev.dt)}</div>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn edit" data-edit="${ev.id}" aria-label="Edit">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="card-btn del" data-del="${ev.id}" aria-label="Delete">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        ${past
+          ? `<div class="past-label">This event has passed</div>`
+          : `<div class="countdown">
+              <div class="cd-block"><span class="cd-num" id="d-${ev.id}">${parts.d}</span><span class="cd-lbl">days</span></div>
+              <span class="cd-sep">:</span>
+              <div class="cd-block"><span class="cd-num" id="h-${ev.id}">${parts.h}</span><span class="cd-lbl">hrs</span></div>
+              <span class="cd-sep">:</span>
+              <div class="cd-block"><span class="cd-num" id="m-${ev.id}">${parts.m}</span><span class="cd-lbl">min</span></div>
+              <span class="cd-sep">:</span>
+              <div class="cd-block"><span class="cd-num" id="s-${ev.id}">${parts.s}</span><span class="cd-lbl">sec</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="p-${ev.id}" style="width:${pct.toFixed(2)}%"></div></div>`
+        }
+      </div>`;
     }
 
     function render() {
       const list = document.getElementById('list');
       const now = Date.now();
-
       if (!events.length) {
-        list.innerHTML = `
-          <div class="empty">
-            <svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <rect x="6" y="10" width="36" height="32" rx="6"/>
-              <line x1="16" y1="6" x2="16" y2="14"/>
-              <line x1="32" y1="6" x2="32" y2="14"/>
-              <line x1="6" y1="22" x2="42" y2="22"/>
-              <line x1="24" y1="30" x2="24" y2="38"/>
-              <line x1="20" y1="34" x2="28" y2="34"/>
-            </svg>
-            No countdowns yet.<br>Tap + to add your first event.
-          </div>`;
+        list.innerHTML = `<div class="empty">
+          <svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="6" y="10" width="36" height="32" rx="6"/>
+            <line x1="16" y1="6" x2="16" y2="14"/><line x1="32" y1="6" x2="32" y2="14"/>
+            <line x1="6" y1="22" x2="42" y2="22"/>
+            <line x1="24" y1="30" x2="24" y2="38"/><line x1="20" y1="34" x2="28" y2="34"/>
+          </svg>
+          No countdowns yet.<br>Tap + to add your first event.</div>`;
         return;
       }
-
       list.innerHTML = events.map(ev => cardHtml(ev, now)).join('');
     }
 
     function tick() {
       const now = Date.now();
-      let needsFullRender = false;
-
+      let needsFull = false;
       events.forEach(ev => {
         const left = ev.dt - now;
         const parts = diffParts(left);
-
-        if (!parts) {
-          if (document.getElementById(`s-${ev.id}`)) needsFullRender = true;
-          return;
-        }
-
-        const sEl = document.getElementById(`s-${ev.id}`);
-        if (!sEl) { needsFullRender = true; return; }
-
-        document.getElementById(`d-${ev.id}`).textContent = parts.d;
-        document.getElementById(`h-${ev.id}`).textContent = parts.h;
-        document.getElementById(`m-${ev.id}`).textContent = parts.m;
+        if (!parts) { if (document.getElementById('s-'+ev.id)) needsFull = true; return; }
+        const sEl = document.getElementById('s-'+ev.id);
+        if (!sEl) { needsFull = true; return; }
+        document.getElementById('d-'+ev.id).textContent = parts.d;
+        document.getElementById('h-'+ev.id).textContent = parts.h;
+        document.getElementById('m-'+ev.id).textContent = parts.m;
         sEl.textContent = parts.s;
-
         const total = ev.dt - ev.created;
-        const pct = total > 0 ? Math.max(0, Math.min(100, (left / total) * 100)) : 0;
-        const pEl = document.getElementById(`p-${ev.id}`);
-        if (pEl) pEl.style.width = pct.toFixed(2) + '%';
+        const pct = total > 0 ? Math.max(0, Math.min(100, (left/total)*100)) : 0;
+        const pEl = document.getElementById('p-'+ev.id);
+        if (pEl) pEl.style.width = pct.toFixed(2)+'%';
       });
-
-      if (needsFullRender) render();
+      if (needsFull) render();
     }
+
+    // ── Event delegation (buttons) ────────────────────────────────────────────
+
+    document.getElementById('list').addEventListener('click', e => {
+      const editBtn = e.target.closest('[data-edit]');
+      const delBtn  = e.target.closest('[data-del]');
+      if (editBtn) openModal(parseInt(editBtn.dataset.edit));
+      if (delBtn)  removeEvent(parseInt(delBtn.dataset.del));
+    });
 
     // ── Modal ─────────────────────────────────────────────────────────────────
 
     function openModal(id) {
       editingId = id;
       const isEdit = id !== null;
-      document.getElementById('modalTitle').textContent = isEdit ? 'Edit event' : 'New event';
+      document.getElementById('modalTitle').textContent   = isEdit ? 'Edit event' : 'New event';
       document.getElementById('modalSaveBtn').textContent = isEdit ? 'Save' : 'Add';
-
       if (isEdit) {
         const ev = events.find(e => e.id === id);
         document.getElementById('newLabel').value = ev.label;
         const d = new Date(ev.dt);
         d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-        document.getElementById('newDate').value = d.toISOString().slice(0, 16);
+        document.getElementById('newDate').value = d.toISOString().slice(0,16);
       } else {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('newDate').value = now.toISOString().slice(0, 16);
+        document.getElementById('newDate').value = now.toISOString().slice(0,16);
         document.getElementById('newLabel').value = '';
       }
-
       document.getElementById('modalOverlay').classList.remove('hidden');
       setTimeout(() => document.getElementById('newLabel').focus(), 80);
     }
@@ -587,14 +548,12 @@
       if (!label || !rawDate) return;
       const dt = new Date(rawDate).getTime();
       if (isNaN(dt)) return;
-
       if (editingId !== null) {
         const ev = events.find(e => e.id === editingId);
         if (ev) { ev.label = label; ev.dt = dt; }
       } else {
         events.push({ id: nextId++, label, dt, created: Date.now() });
       }
-
       saveEvents();
       closeModal();
       render();
@@ -606,140 +565,145 @@
       render();
     }
 
-    // ── Drag-to-reorder (mouse/desktop) ──────────────────────────────────────
+    // ── Drag to reorder — touch-first, works on both mobile and desktop ───────
 
-    function onDragStart(e, id) {
-      dragId = id;
-      e.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => {
-        const el = document.getElementById('card-' + id);
-        if (el) el.classList.add('dragging');
-      }, 0);
+    let drag = {
+      active: false,
+      id: null,
+      startY: 0,
+      currentY: 0,
+      ghost: null,
+      ghostWidth: 0,
+      ghostOffsetY: 0,
+      placeholder: null,  // the dimmed original card
+      targetIdx: null,
+    };
+
+    function getCardEls() {
+      return Array.from(document.getElementById('list').querySelectorAll('.card[data-id]'));
     }
 
-    function onDragOver(e, id) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (id === dragId) return;
-      if (dragOverId !== id) {
-        if (dragOverId) {
-          const prev = document.getElementById('card-' + dragOverId);
-          if (prev) prev.classList.remove('drag-over');
+    function findTargetIdx(clientY) {
+      const cards = getCardEls();
+      for (let i = 0; i < cards.length; i++) {
+        const r = cards[i].getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        if (clientY < mid) return i;
+      }
+      return cards.length - 1;
+    }
+
+    function startDrag(evId, clientY, clientX) {
+      const card = document.getElementById('card-' + evId);
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+
+      drag.active = true;
+      drag.id = evId;
+      drag.ghostOffsetY = clientY - rect.top;
+      drag.ghostWidth = rect.width;
+
+      // Show ghost
+      const ev = events.find(e => e.id === evId);
+      const ghost = document.getElementById('dragGhost');
+      document.getElementById('ghostLabel').textContent = ev.label;
+      document.getElementById('ghostDate').textContent  = fmtDate(ev.dt);
+      ghost.style.display = 'block';
+      ghost.style.width   = rect.width + 'px';
+      ghost.style.left    = rect.left  + 'px';
+      ghost.style.top     = (clientY - drag.ghostOffsetY) + 'px';
+      drag.ghost = ghost;
+
+      // Dim the original
+      card.classList.add('drag-placeholder');
+
+      drag.targetIdx = events.findIndex(e => e.id === evId);
+    }
+
+    function moveDrag(clientY) {
+      if (!drag.active) return;
+      drag.ghost.style.top = (clientY - drag.ghostOffsetY) + 'px';
+
+      // Find insertion index based on pointer position
+      const cards = getCardEls();
+      let newIdx = cards.length - 1;
+      for (let i = 0; i < cards.length; i++) {
+        if (cards[i].dataset.id == drag.id) continue; // skip self
+        const r = cards[i].getBoundingClientRect();
+        if (clientY < r.top + r.height / 2) { newIdx = i; break; }
+      }
+
+      if (newIdx !== drag.targetIdx) {
+        drag.targetIdx = newIdx;
+        // Reorder events array in-place for live preview
+        const fromIdx = events.findIndex(e => e.id === drag.id);
+        // Clamp newIdx considering the removed element
+        let toIdx = newIdx;
+        if (fromIdx < toIdx) toIdx = Math.min(toIdx, events.length - 1);
+        if (fromIdx !== toIdx) {
+          const [moved] = events.splice(fromIdx, 1);
+          events.splice(toIdx, 0, moved);
+          render();
+          // Restore placeholder styling after re-render
+          const card = document.getElementById('card-' + drag.id);
+          if (card) card.classList.add('drag-placeholder');
         }
-        dragOverId = id;
-        const el = document.getElementById('card-' + id);
-        if (el) el.classList.add('drag-over');
       }
     }
 
-    function onDragLeave(e, id) {
-      const el = document.getElementById('card-' + id);
-      if (el) el.classList.remove('drag-over');
-      if (dragOverId === id) dragOverId = null;
-    }
-
-    function onDrop(e, id) {
-      e.preventDefault();
-      if (dragId === null || dragId === id) return;
-      reorder(dragId, id);
-    }
-
-    function onDragEnd(e) {
-      const el = document.getElementById('card-' + dragId);
-      if (el) el.classList.remove('dragging');
-      if (dragOverId) {
-        const ov = document.getElementById('card-' + dragOverId);
-        if (ov) ov.classList.remove('drag-over');
-      }
-      dragId = null;
-      dragOverId = null;
-    }
-
-    function reorder(fromId, toId) {
-      const fromIdx = events.findIndex(e => e.id === fromId);
-      const toIdx   = events.findIndex(e => e.id === toId);
-      if (fromIdx === -1 || toIdx === -1) return;
-      const [moved] = events.splice(fromIdx, 1);
-      events.splice(toIdx, 0, moved);
+    function endDrag() {
+      if (!drag.active) return;
+      drag.ghost.style.display = 'none';
+      drag.active = false;
+      const card = document.getElementById('card-' + drag.id);
+      if (card) card.classList.remove('drag-placeholder');
+      drag.id = null;
       saveEvents();
       render();
     }
 
-    // ── Touch drag-to-reorder (mobile) ───────────────────────────────────────
+    // Touch events — attached to list via delegation
+    const list = document.getElementById('list');
 
-    let touchDragId = null;
-    let touchClone = null;
-    let touchOffsetY = 0;
-    let touchLastOverId = null;
-
-    function onTouchStart(e, id) {
-      // Only start drag from the handle
-      touchDragId = id;
-      const card = document.getElementById('card-' + id);
-      const rect = card.getBoundingClientRect();
-      touchOffsetY = e.touches[0].clientY - rect.top;
-
-      // Clone card for visual drag ghost
-      touchClone = card.cloneNode(true);
-      touchClone.style.cssText = `
-        position: fixed;
-        left: ${rect.left}px;
-        top: ${rect.top}px;
-        width: ${rect.width}px;
-        z-index: 999;
-        pointer-events: none;
-        opacity: 0.9;
-        transform: scale(1.03);
-        border: 0.5px solid var(--accent);
-        border-radius: 20px;
-        background: rgba(26,43,60,0.95);
-        transition: none;
-      `;
-      document.body.appendChild(touchClone);
-      card.style.opacity = '0.3';
+    list.addEventListener('touchstart', e => {
+      const handle = e.target.closest('[data-drag]');
+      if (!handle) return;
       e.preventDefault();
-    }
+      const id = parseInt(handle.dataset.drag);
+      const t = e.touches[0];
+      startDrag(id, t.clientY, t.clientX);
+    }, { passive: false });
 
-    function onTouchMove(e) {
-      if (touchDragId === null || !touchClone) return;
+    list.addEventListener('touchmove', e => {
+      if (!drag.active) return;
       e.preventDefault();
-      const touch = e.touches[0];
-      const y = touch.clientY - touchOffsetY;
-      touchClone.style.top = y + 'px';
+      moveDrag(e.touches[0].clientY);
+    }, { passive: false });
 
-      // Find which card we're over
-      const list = document.getElementById('list');
-      const cards = list.querySelectorAll('.card[data-id]');
-      let overId = null;
-      cards.forEach(c => {
-        const cid = parseInt(c.dataset.id);
-        if (cid === touchDragId) return;
-        const r = c.getBoundingClientRect();
-        if (touch.clientY >= r.top && touch.clientY <= r.bottom) overId = cid;
-        c.classList.remove('drag-over');
-      });
-      if (overId !== null) {
-        const overEl = document.getElementById('card-' + overId);
-        if (overEl) overEl.classList.add('drag-over');
-      }
-      touchLastOverId = overId;
-    }
+    list.addEventListener('touchend', e => {
+      if (!drag.active) return;
+      e.preventDefault();
+      endDrag();
+    }, { passive: false });
 
-    function onTouchEnd(e) {
-      if (touchDragId === null) return;
-      if (touchClone) { touchClone.remove(); touchClone = null; }
-      const card = document.getElementById('card-' + touchDragId);
-      if (card) card.style.opacity = '';
-      const list = document.getElementById('list');
-      list.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+    // Mouse events for desktop
+    list.addEventListener('mousedown', e => {
+      const handle = e.target.closest('[data-drag]');
+      if (!handle) return;
+      e.preventDefault();
+      const id = parseInt(handle.dataset.drag);
+      startDrag(id, e.clientY, e.clientX);
+    });
 
-      if (touchLastOverId !== null && touchLastOverId !== touchDragId) {
-        reorder(touchDragId, touchLastOverId);
-      }
+    document.addEventListener('mousemove', e => {
+      if (!drag.active) return;
+      moveDrag(e.clientY);
+    });
 
-      touchDragId = null;
-      touchLastOverId = null;
-    }
+    document.addEventListener('mouseup', e => {
+      if (!drag.active) return;
+      endDrag();
+    });
 
     render();
     setInterval(tick, 1000);
